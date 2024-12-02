@@ -1,0 +1,40 @@
+*{
+    box-sizing: border-box;
+}
+#gameboard{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+    width: 600px;
+    margin-bottom: 50px;
+}
+
+.cell{
+    border: 2px black solid;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px
+}
+
+h1{
+    text-align: center;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#settings{
+    display: flex;
+}
+
+#message{
+    font-size: 36px;
+}

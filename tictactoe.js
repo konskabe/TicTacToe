@@ -58,6 +58,11 @@ const Controller = (()=>{
     let currentPlayerIndex;
     let gameOver;
     let vsComputer = false;
+    let difficulty = "easy"; //default
+    
+    const setComputerDifficulty = (level) =>{
+         difficulty = level;
+    }
     
 
     const startGame = ()=>{
@@ -90,6 +95,9 @@ const Controller = (()=>{
     const handleClick = (event)=>{
         if (gameOver) return;
 
+        if (players[currentPlayerIndex].isComputer) return;         // Ensure it's the player's turn
+
+
         let index = event.target.id.split("-")[1]; //get the index of the cell-X
 
         if (Gameboard.getGameboard()[index] !== "") return;
@@ -120,15 +128,78 @@ const Controller = (()=>{
 
     const computerMove = () => {
         const board = Gameboard.getGameboard();
-
         // Find available spots
         const availableSpots = board.map((cell, index) => cell === "" ? index : null).filter(index => index !== null);
+        let move;
 
-        // Pick a random spot
-        const randomIndex = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+        if (difficulty === "easy") {
+            move = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+        } else if (difficulty === "medium") {
+            move = mediumDifficultyMove(availableSpots);
+        } else if (difficulty === "hard") {
+            move = hardDifficultyMove(availableSpots);
+        }
 
-        makeMove(randomIndex);
+        makeMove(move);
     };
+
+    const mediumDifficultyMove = (availableSpots) => {
+        const board = Gameboard.getGameboard();
+        let move;
+
+        for (let spot of availableSpots) {
+            board[spot] = players[0].symbol;
+            if (checkWin(board)) {
+                move = spot;
+                break;
+            }
+            board[spot] = ""; // Reset the board after checking
+        }
+        if (!move && move !== 0){
+            move = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+        }
+        return move;
+    }
+
+    const hardDifficultyMove = (availableSpots) => {
+        const board = Gameboard.getGameboard();
+        let move;
+
+        for (let spot of availableSpots) {
+            board[spot] = players[1].symbol;
+            if (checkWin(board)) {
+                move = spot;
+                return move;
+            }
+            board[spot] = ""; // Reset the board after checking
+        }
+
+        for (let spot of availableSpots) {
+            board[spot] = players[0].symbol;
+            if (checkWin(board)) {
+                move = spot;
+                return move;
+            }
+            board[spot] = ""; // Reset the board after checking
+        }
+
+        if (!move && move !== 0 && board[4] === "") {
+            move = 4; // Center spot
+            return move;
+        }
+
+        if (!move && move !== 0) {
+            const corners = [0, 2, 6, 8];
+            move = availableSpots.find(spot => corners.includes(spot));
+            return move;
+        }
+
+        if (!move && move !== 0){
+            return move = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+        }
+
+    }
+    
 
     const checkWin = (board)=>{
         const winCombinations = [
@@ -187,14 +258,17 @@ const Controller = (()=>{
         startGame,
         handleClick,
         restartGame,
-        triggerFireworks
+        triggerFireworks,
+        setComputerDifficulty
     }
 
 })();
 
+let gamestart = false;
 const startButton = document.querySelector("#startButton");
 startButton.addEventListener("click",() => {
     Controller.startGame();
+    gamestart = true;
     document.querySelector("#startButton").style.display = "none";
     document.querySelector("#restartButton").style.display = "inline-block";
 });
@@ -205,28 +279,36 @@ restartButton.addEventListener("click",()=>{
     Controller.restartGame();
 });
 
-//toggle player 2 input
+
 const vsComputerCheckbox = document.querySelector("#vsComputer");
-const player2Input = document.querySelector("#player2"); 
+const player2Input = document.querySelector("#player2");  //toggle player 2 input
+const difficultyContainer = document.querySelector("#difficultyContainer");
+const difficultySelect = document.querySelector("#difficulty");
+
+// Set up event listener for difficulty selection
+difficultySelect.addEventListener("change", (event) => {
+    Controller.setComputerDifficulty(event.target.value);
+});
+
 
 vsComputerCheckbox.addEventListener("change", () => {
-    const gameboard = Gameboard.getGameboard();
-    const isBoardNotEmpty = gameboard.some(cell => cell !== "");
+    const isBoardNotEmpty = Gameboard.getGameboard().some(cell => cell !== "");
 
     if (isBoardNotEmpty) {
-        // Confirm with the user before restarting the game
         const confirmRestart = confirm("Changing the mode will restart the game. Do you want to continue?");
         if (!confirmRestart) {
-            // If the user cancels, revert the checkbox state and exit
             vsComputerCheckbox.checked = !vsComputerCheckbox.checked;
             return;
         }
-        Controller.restartGame();
     }
+    player2Input.style.display = vsComputerCheckbox.checked ? "none" : "block";
+    difficultyContainer.style.display = vsComputerCheckbox.checked ? "block" : "none";
 
-    if (vsComputerCheckbox.checked) {
-        player2Input.style.display = "none"; 
-    } else {
-        player2Input.style.display = "block";
-    }
+   
+    if (gamestart) Controller.restartGame();
+
+    
 });
+
+
+

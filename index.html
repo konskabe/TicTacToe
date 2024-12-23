@@ -15,9 +15,34 @@
             <input type="text" id="player2" placeholder="Player 2 Name" value="Player 2">
             <button id="startButton">Start Game</button>
             <button id="restartButton">Restart Game</button>
+            <label>
+                <input type="checkbox" id="vsComputer"> Play against Computer
+            </label>
+            <div id="difficultyContainer">
+                <label for="difficulty">Difficulty</label>
+                <select id="difficulty">
+                    <option value="easy" selected>Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
         </div>
         <div id="message"></div>
+        <div id="fireworksContainer" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
     </main>
+
+    <footer class="footer">
+        <p>
+            Copyright ©
+            <script>
+                document.write(new Date().getFullYear())
+            </script>
+            Konstantinos Kamperis
+        </p>
+    </footer>
+
     <script src="tictactoe.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fireworks-js/dist/fireworks.js"></script>
+
 </body>
 </html>
